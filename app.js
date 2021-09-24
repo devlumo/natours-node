@@ -1,14 +1,33 @@
 import express from "express";
 import * as fs from "fs";
+import morgan from "morgan";
 
 const app = express();
+
+// MIDDLEWARES
+
+app.use(morgan("dev"));
 app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log("hello from middleware 👋");
+  next();
+});
+
+app.use((req, res, next) => {
+  req.requstTime = new Date().toISOString();
+  next();
+});
 
 const tours = JSON.parse(fs.readFileSync("./dev-data/data/tours-simple.json"));
 
+// ROUTE HANDLERS
+
 const getAllTours = (req, res) => {
+  console.log(req.requstTime);
   res.status(200).json({
     status: "success",
+    requestedAt: req.requstTime,
     results: tours.length,
     data: {
       tours,
@@ -75,12 +94,16 @@ const deleteTour = (req, res) => {
   });
 };
 
+// ROUTES
+
 app.route("/api/v1/tours").get(getAllTours).post(createTour);
 app
   .route("/api/v1/tours/:id")
   .get(getTour)
   .patch(updateTour)
   .delete(deleteTour);
+
+// SERVER INITIALISATION
 
 const port = 3000;
 app.listen(port, () => {
