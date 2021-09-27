@@ -1,8 +1,10 @@
 import express from "express";
 import morgan from "morgan";
+import path from "path";
+
 import tourRouter from "./routes/tourRoutes.js";
 import userRouter from "./routes/userRoutes.js";
-import path from "path";
+
 const __dirname = path.resolve();
 
 const app = express();
