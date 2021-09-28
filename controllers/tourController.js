@@ -3,10 +3,32 @@ import Tour from "../models/tourModel.js";
 const getAllTours = async (req, res) => {
   try {
     // BUILDING QUERY
+    // 1 FILTERING
     const queryObj = { ...req.query };
     const excludedFields = ["page", "sort", "limit", "fields"];
     excludedFields.forEach((el) => delete queryObj[el]);
-    const query = Tour.find(queryObj);
+
+    // 2 EXTRA FILTERING
+    let queryString = JSON.stringify(queryObj);
+    queryString = queryString.replace(/(gte|gt|lte|lt)\b/g, (str) => `$${str}`);
+    let query = Tour.find(JSON.parse(queryString));
+
+    // 3 SORTING (pass "-" in the url for descending)
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ");
+      console.log(sortBy);
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort("-createdAt");
+    }
+
+    // 4 FIELD LIMITING
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      query = query.select(fields);
+    } else {
+      query = query.select("-__v");
+    }
 
     // EXECUTING QUERY
     const tours = await query;
