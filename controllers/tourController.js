@@ -2,8 +2,16 @@ import Tour from "../models/tourModel.js";
 
 const getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    // BUILDING QUERY
+    const queryObj = { ...req.query };
+    const excludedFields = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach((el) => delete queryObj[el]);
+    const query = Tour.find(queryObj);
 
+    // EXECUTING QUERY
+    const tours = await query;
+
+    // SEND RESPONSE
     res.status(200).json({
       status: "success",
       results: tours.length,
@@ -52,7 +60,7 @@ const createTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: "fail",
-      message: "Invaid dataset",
+      message: err,
     });
   }
 };
@@ -72,7 +80,7 @@ const updateTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: "fail",
-      message: "Invaid dataset",
+      message: err,
     });
   }
 };
@@ -87,7 +95,7 @@ const deleteTour = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: "fail",
-      message: "Invaid dataset",
+      message: err,
     });
   }
 };
