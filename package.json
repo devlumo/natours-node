@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon server.js",
-    "start:prod": "NODE_ENV=production nodemon server.js"
+    "start:prod": "NODE_ENV=production nodemon server.js",
+    "debug": "ndb server.js"
   },
   "author": "lumo",
   "license": "ISC",
@@ -16,7 +17,9 @@
     "express": "^4.17.1",
     "install": "^0.13.0",
     "mongoose": "^5.13.9",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "slugify": "^1.6.0",
+    "validator": "^13.6.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
@@ -28,6 +31,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.26.0",
+    "ndb": "^1.1.5",
     "prettier": "^2.4.1"
   },
   "engines": {

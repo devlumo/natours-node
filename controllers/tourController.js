@@ -76,7 +76,7 @@ const updateTour = async (req, res) => {
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true,
+      runValidators: true, // re runs the validators in the schema
     });
     res.status(200).json({
       status: "success",
@@ -106,6 +106,8 @@ const deleteTour = async (req, res) => {
     });
   }
 };
+
+// AGGREGATION PIPELINE
 
 const getTourStats = async (req, res) => {
   try {
@@ -163,6 +165,27 @@ const getMonthlyPlan = async (req, res) => {
             $lte: new Date(`${year}-12-31`),
           },
         },
+      },
+      {
+        $group: {
+          _id: { $month: "$startDates" },
+          numToursStarts: { $sum: 1 },
+          tours: { $push: "$name" },
+        },
+      },
+      {
+        $addFields: { month: "$_id" },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+      {
+        $sort: { numToursStarts: -1 },
+      },
+      {
+        $limit: 12,
       },
     ]);
 
