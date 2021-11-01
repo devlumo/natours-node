@@ -35,6 +35,8 @@ const userSchema = new mongoose.Schema({
       message: "Passwords are not the same",
     },
   },
+
+  passwordChangedAt: Date,
 });
 
 // Password enctryption middleware - passwords encrpted between recieving and sending password data to DB
@@ -50,13 +52,25 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// instance method, available on all documents from mongodb collection
+// instance methods, available on all documents from mongodb collection
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    console.log(changedTimestamp, JWTTimestamp);
+    return JWTTimestamp < changedTimestamp;
+  }
+  return false;
 };
 const User = mongoose.model("User", userSchema);
 
