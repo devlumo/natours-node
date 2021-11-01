@@ -1,5 +1,5 @@
 import express from "express";
-import signUp from "../controllers/authController.js";
+import { login, signUp } from "../controllers/authController.js";
 
 import {
   getAllUsers,
@@ -12,6 +12,7 @@ import {
 const userRouter = express.Router();
 
 userRouter.post("/signup", signUp);
+userRouter.post("/login", login);
 
 userRouter.route("/").get(getAllUsers).post(createUser);
 userRouter.route("/:id").get(getUser).patch(updateUser).delete(deleteUser);
