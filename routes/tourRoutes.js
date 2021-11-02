@@ -1,5 +1,5 @@
 import express from "express";
-import { protect } from "../controllers/authController.js";
+import { protect, restrictTo } from "../controllers/authController.js";
 import {
   getAllTours,
   getTour,
@@ -20,6 +20,10 @@ tourRouter.route("/tour-stats").get(getTourStats);
 tourRouter.route("/get-monthly-plan/:year").get(getMonthlyPlan);
 tourRouter.route("/").get(protect, getAllTours).post(createTour);
 
-tourRouter.route("/:id").get(getTour).patch(updateTour).delete(deleteTour);
+tourRouter
+  .route("/:id")
+  .get(getTour)
+  .patch(updateTour)
+  .delete(protect, restrictTo("admin", "lead-guide"), deleteTour);
 
 export default tourRouter;
