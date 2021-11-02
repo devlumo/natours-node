@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+import { randomBytes, createHash } from "crypto";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -43,6 +44,8 @@ const userSchema = new mongoose.Schema({
   },
 
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 // Password enctryption middleware - passwords encrpted between recieving and sending password data to DB
@@ -58,8 +61,9 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// instance methods, available on all documents from mongodb collection
+// Instance methods, available on all documents from mongodb collection
 
+// checks if the password is the correct
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
@@ -67,6 +71,7 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+// checks if the users passowrd has been changed after the current token was issued
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
@@ -78,6 +83,21 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   }
   return false;
 };
+
+userSchema.methods.createResetPasswordToken = function () {
+  const resetToken = randomBytes(32).toString("hex");
+
+  this.passwordResetToken = createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  console.log({ resetToken }, this.passwordResetToken);
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
+
 const User = mongoose.model("User", userSchema);
 
 export default User;

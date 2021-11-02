@@ -5,6 +5,7 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 
 const signToken = (id) =>
+  // creates a JWT with the provided ID (user id from mongodb)
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
@@ -103,4 +104,26 @@ const restrictTo =
     next();
   };
 
-export { signUp, login, protect, restrictTo };
+const forgotPassword = catchAsync(async (req, res, next) => {
+  // 1. Get user from posted email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new AppError("There is no user with that email address", 404));
+  }
+
+  // 2. Generate the random reset token
+
+  const resetToken = user.createResetPasswordToken();
+
+  // validateBeforeSave allows us to toggle the validators off so we do not need to provide all info
+  // as we are only updating the password we do not need to run all validations
+
+  await user.save({ validateBeforeSave: false });
+
+  // 3.Send it to the users email
+  console.log(resetToken);
+});
+
+const resetPassword = (req, res, next) => {};
+
+export { signUp, login, protect, restrictTo, forgotPassword, resetPassword };
