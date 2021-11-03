@@ -163,6 +163,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({
     passwordResetToken: hashedToken,
+    // user will be undefined if the expiry date is greater than now
     passwordResetExpires: { $gt: Date.now() },
   });
 

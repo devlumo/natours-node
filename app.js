@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import path from "path";
+// import cors from "cors";
 
 import AppError from "./utils/appError.js";
 import globalErrorHandler from "./controllers/errorController.js";
@@ -18,6 +19,11 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// app.use(
+//   cors({
+//     origin: "http://localhost:3001",
+//   })
+// );
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
